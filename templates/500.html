@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ошибка 500- ошибка сервера</title>
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+</head>
+</head>
+
+<body>
+    <section class="error-404-section section-padding">
+        <div class="error">
+            <img src="{{url_for('static', filename='500.jpeg') }}">
+        </div>
+        <div class="error-message">
+            <h3>Ошибка в настройках сайта!</h3>
+            <p>На сервере произошла непредвиденная ошибка.Пожалуйста подождите, вскоре она будет исправлена</p>
+            <a href="javascript:history.go(-1)" class="theme-btn">Вернуться назад</a>
+        </div>
+    </section>
+</body>
+</html>
