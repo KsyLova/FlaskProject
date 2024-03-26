@@ -1,9 +1,10 @@
 import random
 
 import flask
-from flask import request, make_response, render_template,redirect,url_for,session
+from flask import request, make_response, render_template, redirect, url_for, session
 from app.forms import SimpleForm
 from main import flask_app
+from models import User
 
 
 @flask_app.route('/')
@@ -12,9 +13,9 @@ def index():
     default_user = {"username": "Kseniya"}
     session_text = session.get('text')
     if session_text is not None or session_text != "":
-        return render_template("index.html", text=session_text)
+        return render_template("index.html", text=session_text, auth=session.get('auth'))
     else:
-        return render_template('index.html', user=default_user)
+        return render_template('index.html', user=default_user, auth=session.get('auth'))
 
 
 @flask_app.route("/cookie")
@@ -44,12 +45,29 @@ def error500():
     flask.abort(500)
 
 
-@flask_app.route('/index/testForm', methods=['GET','POST'])
+@flask_app.route('/index/testForm', methods=['GET', 'POST'])
 def testForm():
     text = None
     form = SimpleForm()
+
     if form.validate_on_submit():
-        session['text'] = form.text.data
-        form.text.data = ''
+        user = User.query.filter_by(username=form.username.data).first()
+        if user is not None:
+            if user.password == form.password.data:
+                session['auth'] = True
+                session['text'] ="Hello,"+ user.username
+            else:
+                session['auth'] = False
+                session['text'] = 'Incorrect password or login, please try again'
+        else:
+            session['auth'] = False
         return redirect(url_for('index'))
-    return render_template('formTemplate.html', form=form, text=text)
+    return render_template('formTemplate.html', form=form, text=text, auth=session.get('auth'))
+
+
+@flask_app.route('/logout')
+def logout():
+    if session.get('auth'):
+        session['auth'] = False
+        session['text'] = None
+    return redirect(url_for('index'))

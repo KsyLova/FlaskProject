@@ -1,10 +1,10 @@
 {% extends "baseTemplate.html" %}
 
 {% block content %}
-    {% if text %}
-        <h1>Hello, {{ text }}</h1>
-    {% elif user %}
+    {% if user %}
         <h1>Hello, {{ user.username }}</h1>
+    {% elif text %}
+        <h1>{{text}}</h1>
     {% else %}
         <h1>Hello, Stranger</h1>
     {% endif %}
