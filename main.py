@@ -1,18 +1,15 @@
 import os
-from flask import Flask
-from flask_bootstrap import Bootstrap5
+import unittest
 
-basedir = os.path.abspath(os.path.dirname(__file__))
+from app import create_app, db
 
-flask_app = Flask(__name__)
+from flask_migrate import Migrate
 
-
-from app import routes
-
-if __name__ == "__main__":
-    flask_app.run(debug=True)
-
-bootstrap = Bootstrap5(flask_app)
+flask_app = create_app('default')
+migrate = Migrate(flask_app, db)
 
 
-
+@flask_app.cli.command('test')
+def test():
+    tests = unittest.TestLoader().discover('tests')
+    unittest.TextTestRunner(verbosity=2).run(tests)

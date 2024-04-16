@@ -1,14 +1,22 @@
 import random
 
 import flask
+
 from flask import request, make_response, render_template, redirect, url_for, session
-from app.forms import SimpleForm
-from main import flask_app
-from models import User
+from app.main.forms import SimpleForm
+
+from app.models import User
+from flask_mail import Message
+
+from . import main
+from .. import mail
+from flask_login import login_required
+
+'''from app.models import db'''
 
 
-@flask_app.route('/')
-@flask_app.route("/index")
+@main.route('/')
+@main.route("/index")
 def index():
     default_user = {"username": "Kseniya"}
     session_text = session.get('text')
@@ -18,7 +26,7 @@ def index():
         return render_template('index.html', user=default_user, auth=session.get('auth'))
 
 
-@flask_app.route("/cookie")
+@main.route("/cookie")
 def cookie():
     user_agent = request.headers.get('User-Agent')
     if 'Mozilla' in user_agent:
@@ -30,22 +38,7 @@ def cookie():
         return '<h1>Incorrect browser! Your browser is {}!</h1>'.format(user_agent)
 
 
-@flask_app.errorhandler(404)
-def page_not_found(e):
-    return render_template("404.html"), 404
-
-
-@flask_app.errorhandler(500)
-def internal_server_error(e):
-    return render_template('500.html'), 500
-
-
-@flask_app.route("/1")
-def error500():
-    flask.abort(500)
-
-
-@flask_app.route('/index/testForm', methods=['GET', 'POST'])
+@main.route('/index/testForm', methods=['GET', 'POST'])
 def testForm():
     text = None
     form = SimpleForm()
@@ -55,7 +48,8 @@ def testForm():
         if user is not None:
             if user.password == form.password.data:
                 session['auth'] = True
-                session['text'] ="Hello,"+ user.username
+                confirm(user)
+                return redirect(url_for('index'))
             else:
                 session['auth'] = False
                 session['text'] = 'Incorrect password or login, please try again'
@@ -65,9 +59,30 @@ def testForm():
     return render_template('formTemplate.html', form=form, text=text, auth=session.get('auth'))
 
 
-@flask_app.route('/logout')
+'''
+@main.route('/logout')
 def logout():
     if session.get('auth'):
         session['auth'] = False
         session['text'] = None
     return redirect(url_for('index'))
+'''
+
+
+def confirm(user):
+    send_mail("xenya.dmitrievna@gmail.com", 'HomeBank Community Team', 'send_mail', user=user)
+    redirect(url_for('index'))
+
+
+def send_mail(to, subject, template, **kwargs):
+    msg = Message(subject,
+                  sender=main.config['MAIL_USERNAME'],
+                  recipients=[to])
+    msg.body = render_template(template + ".txt", **kwargs)
+    mail.send(msg)
+
+
+@main.route("/secret")
+@login_required
+def secret():
+    return "Only for auth"

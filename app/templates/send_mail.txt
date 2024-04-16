@@ -1,0 +1,2 @@
+Hi, {{user.username}}
+Welcome to HomeBank! Your new account comes with access to HomeBank products, apps, and services.
