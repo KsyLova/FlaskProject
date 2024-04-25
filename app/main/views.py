@@ -2,17 +2,15 @@ import random
 
 import flask
 
-from flask import request, make_response, render_template, redirect, url_for, session
+from flask import request, make_response, render_template, redirect, url_for, session, flash
 from app.main.forms import SimpleForm
 
 from app.models import User
 from flask_mail import Message
-
 from . import main
 from .. import mail
+from app import db
 from flask_login import login_required
-
-'''from app.models import db'''
 
 
 @main.route('/')
@@ -44,34 +42,35 @@ def testForm():
     form = SimpleForm()
 
     if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
+        user = db.session.query(User).filter(User.username == form.text.data).first()
         if user is not None:
-            if user.password == form.password.data:
+            if user.password == form.password.data and user.email == form.email.data:
+                flash("Thanks for log in!", "success")
+                session[
+                    'text'] = "Thanks for log in! Your login: " + user.email + " and your password: " + user.password
+                form.text.data = ''
                 session['auth'] = True
                 confirm(user)
                 return redirect(url_for('index'))
             else:
+                flash("Not correct password or email", "error")
                 session['auth'] = False
-                session['text'] = 'Incorrect password or login, please try again'
         else:
+            flash("No such user", "warning")
             session['auth'] = False
-        return redirect(url_for('index'))
-    return render_template('formTemplate.html', form=form, text=text, auth=session.get('auth'))
+    return render_template('formTemplate.html', form=form, text=text)
 
 
-'''
 @main.route('/logout')
 def logout():
     if session.get('auth'):
         session['auth'] = False
         session['text'] = None
-    return redirect(url_for('index'))
-'''
+    return redirect(url_for('main.index'))
 
 
 def confirm(user):
-    send_mail("xenya.dmitrievna@gmail.com", 'HomeBank Community Team', 'send_mail', user=user)
-    redirect(url_for('index'))
+    send_mail(user.email, 'Create new user', 'send_mail', user=user)
 
 
 def send_mail(to, subject, template, **kwargs):
@@ -86,3 +85,10 @@ def send_mail(to, subject, template, **kwargs):
 @login_required
 def secret():
     return "Only for auth"
+
+
+@main.route("/testConfirm")
+def testConfirm():
+    user = User.query.filter_by().first()
+    tmp = user.generate_confirmation_token()
+    user.confirm(tmp)
