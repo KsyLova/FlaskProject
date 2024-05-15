@@ -11,9 +11,10 @@ from app import mail
 
 @auth.before_app_request
 def before_request():
-    if current_user.is_authenticated and not current_user.confirmed and request.blueprint != 'auth' \
-            and request.endpoint != 'static':
-        return redirect(url_for('auth.unconfirmed'))
+    if current_user.is_authenticated:
+        current_user.ping()
+        if current_user.is_authenticated and not current_user.confirmed and request.blueprint != 'auth' and request.endpoint != 'static':
+            return redirect(url_for('auth.unconfirmed'))
 
 
 @auth.route('/login', methods=['GET', 'POST'])
@@ -36,7 +37,7 @@ def register():
     if form.validate_on_submit():
         user = User(username=form.username.data,
                     email=form.email.data)
-        user.set_password(form.password.data)
+        user.set_password = form.password.data
         print(user.email)
         db.session.add(user)
         print(user.password_verify("pass"))

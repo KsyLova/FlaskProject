@@ -25,7 +25,7 @@ def create_app(config_name="default"):
     bootstrap.init_app(flask_app)
     mail.init_app(flask_app)
     db.init_app(flask_app)
-    migrate.init_app(flask_app,db)
+    migrate.init_app(flask_app, db, render_as_batch=True)
     oauth.init_app(flask_app)
     from .main import main as main_blueprint
     flask_app.register_blueprint(main_blueprint)
