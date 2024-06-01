@@ -1,11 +1,12 @@
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
+from flask_admin import Admin, AdminIndexView
 from flask import Flask
 from flask_bootstrap import Bootstrap5
 from flask_mail import Mail
 from config import config
 from authlib.integrations.flask_client import OAuth
 from flask_migrate import Migrate
+from flask_login import LoginManager, current_user
 
 bootstrap = Bootstrap5()
 db = SQLAlchemy()
@@ -14,6 +15,12 @@ oauth = OAuth()
 login_manager = LoginManager()
 migrate = Migrate()
 login_manager.login_view = 'auth.login'
+admin = Admin()
+
+
+class CustomAdminIndexView(AdminIndexView):
+    def is_accessible(self):
+        return current_user.is_authenticated and current_user.role_id == 3
 
 
 def create_app(config_name="default"):
@@ -27,6 +34,8 @@ def create_app(config_name="default"):
     db.init_app(flask_app)
     migrate.init_app(flask_app, db, render_as_batch=True)
     oauth.init_app(flask_app)
+    admin.init_app(flask_app)
+
     from .main import main as main_blueprint
     flask_app.register_blueprint(main_blueprint)
 

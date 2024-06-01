@@ -1,9 +1,8 @@
-import os
 import unittest
-
-from app import create_app, db
+from app import create_app
 
 flask_app = create_app('default')
+
 
 @flask_app.cli.command('test')
 def test():

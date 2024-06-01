@@ -5,10 +5,19 @@
     {{ bootstrap.load_css() }}
     {{ bootstrap.load_js() }}
     <link rel="icon" href="{{url_for('static', filename='icon.png') }}" type="image/x-icon">
+      <style>
+        body {
+            background-image: url("{{url_for('static', filename='background-2151724_1280.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+    </style>
     {% block navbar %}
     <nav class="navbar navbar-dark bg-dark">
   <div class="container-fluid">
-    <a class="navbar-brand" href="/index">HomeBank</a>
+    <a class="navbar-brand" href="/index">TOP NEWS</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -16,22 +25,17 @@
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
             {% if current_user.is_authenticated %}
-            <a class="btn btn-outline-danger" href="{{ url_for('auth.logout') }}"role="button">Выйти</a>
+            <a class="btn btn-outline-danger" href="{{ url_for('auth.logout') }}"role="button">Exit</a>
             {% else %}
-            <a class="btn btn-outline-success" href="{{url_for('auth.login') }}"role="button">Авторизоваться</a>
+            <a class="btn btn-outline-success" href="{{url_for('auth.login') }}"role="button">Sign in</a>
             {% endif %}
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Link</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
-        </li>
+          {% if current_user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.profile') }}">Profile</a>
+                        </li>
+          {% endif %}
       </ul>
-      <form class="d-flex">
-        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-        <button class="btn btn-outline-success" type="submit">Search</button>
-      </form>
     </div>
   </div>
 </nav>
@@ -40,7 +44,7 @@
 <body>
 <div style="display: flex; justify-content:center">
    <h1>
-     Main page!
+     {% block heading %}Main page{% endblock %}
    </h1>
 </div>
 <hr>

@@ -13,6 +13,3 @@ def internal_server_error(e):
     return render_template('500.html'), 500
 
 
-# @main.route("/1")
-# def error500():
-#     flask.abort(500)
